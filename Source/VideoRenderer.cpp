@@ -250,8 +250,10 @@ CMpcVideoRenderer::CMpcVideoRenderer(LPUNKNOWN pUnk, HRESULT* phr)
 		if (ERROR_SUCCESS == key.QueryDWORDValue(OPT_HdrLocaLToneMappingType, dw)) {
 			m_Sets.iHdrLocalToneMappingType = discard<int>(dw, 0, 0, 2);
 		}
-		if (ERROR_SUCCESS == key.QueryDWORDValue(OPT_HdrDisplayNits, dw)) {
-			m_Sets.fHdrDisplayMaxNits = discard<float>(dw, HDR_NITS_DEF, HDR_NITS_MIN, HDR_NITS_MAX);
+		float value = 0;
+		ULONG size = sizeof(value);
+		if (ERROR_SUCCESS == key.QueryBinaryValue(OPT_HdrDisplayNits, &value, &size)) {
+			m_Sets.fHdrDisplayMaxNits = discard<float>(value, HDR_NITS_DEF, HDR_NITS_MIN, HDR_NITS_MAX);
 		}
 		if (ERROR_SUCCESS == key.QueryDWORDValue(OPT_HdrToggleDisplay, dw)) {
 			m_Sets.iHdrToggleDisplay = discard<int>(dw, HDRTD_On, HDRTD_Disabled, HDRTD_OnOff);
@@ -1255,7 +1257,7 @@ STDMETHODIMP CMpcVideoRenderer::SaveSettings()
 		key.SetDWORDValue(OPT_HdrPassthrough,      m_Sets.bHdrPassthrough);
 		key.SetDWORDValue(OPT_HdrLocaLToneMapping, m_Sets.bHdrLocalToneMapping);
 		key.SetDWORDValue(OPT_HdrLocaLToneMappingType, m_Sets.iHdrLocalToneMappingType);
-		key.SetValue(OPT_HdrDisplayNits, REG_SZ, &m_Sets.fHdrDisplayMaxNits, sizeof(m_Sets.fHdrDisplayMaxNits));
+		key.SetBinaryValue(OPT_HdrDisplayNits, &m_Sets.fHdrDisplayMaxNits, sizeof(m_Sets.fHdrDisplayMaxNits));
 		key.SetDWORDValue(OPT_HdrToggleDisplay,    m_Sets.iHdrToggleDisplay);
 		key.SetDWORDValue(OPT_HdrOsdBrightness,    m_Sets.iHdrOsdBrightness);
 		key.SetDWORDValue(OPT_ConvertToSdr,        m_Sets.bConvertToSdr);
